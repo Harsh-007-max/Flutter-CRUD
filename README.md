@@ -17,7 +17,7 @@ flutter create flutter_crud
 flutter pub add http
 ```
 
-## Step-3
+## Step-2
 - Create the list file which will be used to list all the the records returned by the `API`
 	- `list_page.dart`
 - Create a file that is used to make `API` calls 
@@ -25,7 +25,7 @@ flutter pub add http
 - Create a file that is used as a model for the `API` data
 	- `api_crud_model.dart` (used in future)
 
-## Step-4
+## Step-3
 - Write following code in `api_executor.dart`
 ```dart
 import 'dart:convert';
@@ -56,7 +56,7 @@ The above code snippet contains a class `ApiExecutor` which will be the class us
 	- our `API` returns `JSON` data so we have to parse it appropriately 
 	- `JSON` data is stored in the body of `http Response object`
 
-## Step-5
+## Step-4
 - Write the following code in `list_page.dart`
 ```dart
 import 'package:flutter/material.dart';
@@ -99,3 +99,6 @@ Widget customListTile(dynamic data) {
 		- `itemCount` specifies the length of data in the snapshot i.e., `snapshot.data.length`
 		- `itemBuilder` takes a function with arguments `(context,index)` which are used to iterate through the list
 	- The custom function `customListTile()` is not important right now but in future operations it will make the code easier to understand.
+# Output:
+<img width="25%" src="https://raw.githubusercontent.com/Harsh-007-max/Flutter-CRUD/main/images/flutter-crud.png"/>
+
