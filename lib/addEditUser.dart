@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_crud/api_crud_model.dart';
 import 'package:flutter_crud/api_executor.dart';
 import 'package:flutter_crud/widgets/custom_button.dart';
 import './widgets/customInput.dart';
+
+const List<String> list = <String>["Male", "Female"];
 
 class AddEditPage extends StatelessWidget {
   const AddEditPage({super.key, this.edit});
@@ -30,9 +31,11 @@ class CustomForm extends StatefulWidget {
 
 class _CustomFormState extends State<CustomForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = new TextEditingController();
-  final _descriptionController = new TextEditingController();
-  final _genderController = true;
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  dynamic _genderController = "Male";
+
+  @override
   void initState() {
     super.initState();
     _nameController.addListener(() => setState(() => _nameController.text));
@@ -41,7 +44,15 @@ class _CustomFormState extends State<CustomForm> {
     if (widget.edit != null) {
       _nameController.text = widget.edit[ApiExecutor.NAME];
       _descriptionController.text = widget.edit[ApiExecutor.DESCRIPTION];
+      _genderController = widget.edit[ApiExecutor.GENDER];
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -53,14 +64,51 @@ class _CustomFormState extends State<CustomForm> {
           children: [
             Container(
               margin: const EdgeInsets.all(7),
-              child:
-                  CustomInput(controller: _nameController, name: "Enter Name"),
+              child: CustomInput(
+                leadIcon: Icons.person,
+                controller: _nameController,
+                name: "Enter Name",
+              ),
             ),
             Container(
               margin: const EdgeInsets.all(7),
               child: CustomInput(
                   controller: _descriptionController,
                   name: "Enter Description"),
+            ),
+            Container(
+              margin: const EdgeInsets.all(7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 40),
+                    child: const Text("Gender:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black,
+                        )),
+                  ),
+                  DropdownButton(
+                    icon: const Icon(Icons.arrow_drop_down),
+                    underline: Container(height: 2, color: Colors.deepPurple),
+                    onChanged: (newValue) {
+                      setState(() => _genderController = newValue!);
+                    },
+                    value: _genderController,
+                    items: list.map<DropdownMenuItem<String>>(
+                      (String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      },
+                    ).toList(),
+                  ),
+                ],
+              ),
             ),
             CustomElevatedButton(
               childWidget: Text("${widget.edit == null ? "Add" : "Edit"} User"),
@@ -70,18 +118,9 @@ class _CustomFormState extends State<CustomForm> {
                     ApiExecutor.NAME: _nameController.text.toString(),
                     ApiExecutor.DESCRIPTION:
                         _descriptionController.text.toString(),
-                    ApiExecutor.GENDER: "Male",
+                    ApiExecutor.GENDER: _genderController.toString(),
                   };
-                  if (widget.edit != null) {
-                    ApiExecutor()
-                        .updateByPersonID(
-                            widget.edit[ApiExecutor.PERSONID], body)
-                        .then((res) => {Navigator.pop(context)});
-                  } else {
-                    ApiExecutor()
-                        .addNewPerson(body)
-                        .then((res) => {Navigator.pop(context)});
-                  }
+                  _addEditPersonApiCall(body, widget.edit);
                 }
               },
             )
@@ -89,5 +128,17 @@ class _CustomFormState extends State<CustomForm> {
         ),
       ),
     );
+  }
+
+  void _addEditPersonApiCall(body, data) async {
+    if (data != null) {
+      await ApiExecutor()
+          .updateByPersonID(widget.edit[ApiExecutor.PERSONID], body);
+    } else {
+      await ApiExecutor().addNewPerson(body);
+    }
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 }
